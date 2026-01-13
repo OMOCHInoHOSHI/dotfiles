@@ -1,0 +1,15 @@
+# zsh,bshの環境でも動く共通設定
+
+# Gitリポジトリのルートディレクトリに移動する関数
+function cdgitroot() {
+  local root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -n "$root" ]; then
+    cd "$root"
+  else
+    echo "Error: Not a git repository."
+  fi
+}
+
+# 短いコマンドでも動くようにエイリアスを設定
+alias cdgr='cdgitroot'
+
