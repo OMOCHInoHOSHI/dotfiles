@@ -13,3 +13,8 @@ function cdgitroot() {
 # 短いコマンドでも動くようにエイリアスを設定
 alias cdgr='cdgitroot'
 
+# Git関連のエイリアス
+alias gi='git'
+alias sw='git switch'
+alias co='git commit'
+alias br='git branch'
