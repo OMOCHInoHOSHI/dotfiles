@@ -18,3 +18,7 @@ alias gi='git'
 alias sw='git switch'
 alias co='git commit'
 alias br='git branch'
+
+# デフォルトのエディタをnvimにしたい
+export EDITOR='nvim'
+export VISUAL='nvim'
