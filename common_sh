@@ -22,3 +22,9 @@ alias br='git branch'
 # デフォルトのエディタをnvimにしたい
 export EDITOR='nvim'
 export VISUAL='nvim'
+
+# OpenCode
+# secrets (API keys)
+if [ -f "$HOME/dotfiles/secrets_sh" ]; then
+    . "$HOME/dotfiles/secrets_sh"
+fi
