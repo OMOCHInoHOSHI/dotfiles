@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "plan", // 起動時のデフォルトをPlanモードに指定
   // "model": "google/gemini-3-pro-preview",
   "model": "google/gemini-3-flash-preview",
   "provider": {
