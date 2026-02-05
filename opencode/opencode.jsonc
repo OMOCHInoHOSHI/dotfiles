@@ -14,8 +14,7 @@
         "apiKey": "{env:GEMINI_API_KEY}"
       }
     }
-  }
-},
+  },
   // カスタム指示ファイル
   "instructions": [
     "./instructions.md"
