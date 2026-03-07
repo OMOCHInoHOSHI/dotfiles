@@ -23,8 +23,7 @@ alias br='git branch'
 export EDITOR='nvim'
 export VISUAL='nvim'
 
-# OpenCode
-# secrets (API keys)
-if [ -f "$HOME/dotfiles/secrets_sh" ]; then
-    . "$HOME/dotfiles/secrets_sh"
+# OpenCode (存在する場合のみ読み込む)
+if [ -f "$HOME/dotfiles-opencode/secrets_sh" ]; then
+    source "$HOME/dotfiles-opencode/secrets_sh"
 fi

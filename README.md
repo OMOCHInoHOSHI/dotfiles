@@ -9,7 +9,13 @@
 secrets_sh は作成してください（git 管理しません）
 
 
-## opencode設定
+## opencode設定 (オプション)
+
+opencode を使うデバイスでは、事前にリポジトリをクローンしてください。
+
+```bash
+git clone git@github.com:OMOCHInoHOSHI/dotfiles-opencode.git ~/dotfiles-opencode
+```
 
 #### ① 既存ファイルの状態確認
 - 通常ファイルなら次へ
@@ -34,7 +40,7 @@ rm ~/.config/opencode/opencode.jsonc
 #### ③ シンボリックリンク作成
 
 ```bash
-ln -s ~/dotfiles/opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc
+ln -s ~/dotfiles-opencode/opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc
 ```
 
 #### ④ シンボリックリンク確認（最重要）
@@ -45,7 +51,7 @@ ls -l ~/.config/opencode/opencode.jsonc
 
 期待される出力
 
-opencode.jsonc -> /home/ユーザー名/dotfiles/opencode/opencode.jsonc
+opencode.jsonc -> /home/ユーザー名/dotfiles-opencode/opencode/opencode.jsonc
 
 #### ⑤ 実体ファイルが読めているか確認
 
