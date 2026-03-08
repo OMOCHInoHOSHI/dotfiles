@@ -1,4 +1,9 @@
 # dotfiles
+
+## bashrc、zshrcの例
+[SMAPLE.mdを参照](SAMPLE.md)
+
+## bashrc、zshrcを更新したら
 再読み込みのコマンド
 
 ```
