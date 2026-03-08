@@ -11,17 +11,17 @@ esac
 # 環境依存
 . ~/dotfiles/wsl_sh
 
-# dotfilesの読み込み
+# 共通設定
 . ~/dotfiles/common_sh
 . ~/dotfiles-opencode/common_sh
 ```
 
 
 ```zshrc版
-. ~/dotfiles/common_sh
+# 環境依存
 . ~/dotfiles/mac_sh
 
-# OpenCode用は条件付きのまま
+# 共通設定
 . ~/dotfiles/common_sh
 ```
 
