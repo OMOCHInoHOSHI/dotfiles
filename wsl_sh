@@ -36,6 +36,3 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# GoのPATHG設定
-export PATH=$PATH:$HOME/go/bin
-
