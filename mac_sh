@@ -1,0 +1,24 @@
+# --- Mac/Zsh 固有の設定 (mac_sh) ---
+
+# 1. Homebrewの設定 (Apple Silicon用)
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# 2. cdコマンド省略 (Zsh用)
+setopt auto_cd
+
+# 3. ls等のカラー有効化 (Macの標準ls対応)
+export CLICOLOR=1
+alias ls='ls -G'
+alias grep='grep --color=auto'
+
+# 4. プロンプトとGitブランチ名の表示 (Zshの標準機能を使用)
+autoload -Uz vcs_info
+setopt prompt_subst
+zstyle ':vcs_info:git:*' formats ' (%b)'
+precmd() { vcs_info }
+
+# 青色でディレクトリ、水色でブランチ名を表示
+PROMPT='%F{blue}%~%f%F{cyan}${vcs_info_msg_0_}%f $ '
+
