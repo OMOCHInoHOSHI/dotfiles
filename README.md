@@ -4,6 +4,9 @@
 ```
 source ~/.bashrc
 ```
+```
+source ~/.zshrc
+```
 
 ## opencode設定 (オプション)
 opencode を使うデバイスでは、リポジトリをクローンしてセットアップしてください。
