@@ -1,6 +1,9 @@
 # dotfiles
 再読み込みのコマンド
-`source ~/.bashrc`
+
+```
+source ~/.bashrc
+```
 
 ## opencode設定 (オプション)
 opencode を使うデバイスでは、リポジトリをクローンしてセットアップしてください。
