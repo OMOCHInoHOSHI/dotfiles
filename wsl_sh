@@ -1,0 +1,41 @@
+# windows, wsl, ubuntu用の設定
+
+# Bashの履歴設定・ウィンドウサイズ確認
+HISTCONTROL=ignoreboth
+shopt -s histappend
+HISTSIZE=1000
+HISTFILESIZE=2000
+shopt -s checkwinsize
+shopt -s autocd
+
+# Linuxbrewの設定
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# IME（fcitx）の設定
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export INPUT_METHOD=fcitx
+export DefaultIMModule=fcitx
+
+# Gitブランチ名取得関数（Bash用）
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+# プロンプト設定（WSLのパス送信含む）
+PS1='\[\033[01;34m\]\w\[\033[36m\]$(parse_git_branch)\[\033[00m\] \$ '
+export PS1='\[\e]9;9;$(wslpath -w "$PWD")\e\\\]'$PS1
+
+# dircolorsを利用したカラー表示（Linux向け）
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# GoのPATHG設定
+export PATH=$PATH:$HOME/go/bin
+
