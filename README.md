@@ -3,7 +3,7 @@
 ## bashrc、zshrcの例
 [SMAPLE.mdを参照](SAMPLE.md)
 
-## tmux設定 (オプション)
+## tmux設定
 `~/.config/tmux/tmux.conf` は手動で作成してください（Git管理対象外）。
 内容は [SAMPLE.mdを参照](SAMPLE.md)
 
@@ -16,6 +16,8 @@ source ~/.bashrc
 ```
 source ~/.zshrc
 ```
+
+## tmuxを更新したら
 ```
 tmux source-file ~/.config/tmux/tmux.conf
 ```
