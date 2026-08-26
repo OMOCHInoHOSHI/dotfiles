@@ -1,0 +1,157 @@
+# mac/wsl どちらの環境でも動く tmux 共通設定
+#
+# 読み込み方: ~/.config/tmux/tmux.conf から source-file する
+#   source-file ~/dotfiles/common_tmux
+#
+# 想定 tmux: 3.3 以降（3.5a 以降推奨）
+# 反映: 初回は `tmux kill-server` してから起動。以降は prefix + r
+#
+# メモ: `set -gq` / `-sq` の -q は「未知のオプションでもエラーにしない」指定。
+#       古い tmux でも設定全体が落ちないようにする保険（タイポも黙殺される点に注意）
+
+
+# =============================================================================
+# 端末 / TERM
+# =============================================================================
+# tmux-256color が terminfo に無い環境（素の macOS は同梱 ncurses が古く、
+# 入っていないことがある）では screen-256color に自動フォールバックする
+if-shell 'infocmp tmux-256color > /dev/null 2>&1' \
+    'set -g default-terminal "tmux-256color"' \
+    'set -g default-terminal "screen-256color"'
+
+# 24bit カラー。指定するのは「tmux の外側」の TERM 名
+#   Windows Terminal / iTerm2 / WezTerm / VS Code -> xterm-256color
+#   Ghostty -> xterm-ghostty,  kitty -> xterm-kitty （どちらも xterm* に一致）
+set -as terminal-features ',xterm*:RGB'
+set -as terminal-features ',alacritty*:RGB'
+
+
+# =============================================================================
+# TUI 互換（Claude Code 公式ドキュメント準拠）
+# https://code.claude.com/docs/en/terminal-config
+# =============================================================================
+# allow-passthrough : 通知・進捗バーの OSC を外側端末へ通す        (tmux 3.3+)
+# extended-keys     : Shift+Enter と Enter を区別できるようにする  (tmux 3.2+)
+set -gq allow-passthrough on
+set -sq extended-keys on
+set -as terminal-features ',xterm*:extkeys'
+
+# Shift+Enter がどうしても改行にならない場合の最終手段（通常は不要）
+# bind -n S-Enter send-keys Escape "[13;2u"
+
+
+# =============================================================================
+# 基本動作
+# =============================================================================
+set -s  escape-time 10       # 0 だと端末によってはエスケープ列を取りこぼす
+set -sq focus-events on      # フォーカス通知（カーソル制御・Vim/Neovim が利用）
+set -g  history-limit 100000
+set -g  mouse on
+set -g  base-index 1
+setw -g pane-base-index 1
+set -g  renumber-windows on
+set -g  set-titles on
+set -g  set-titles-string '#S:#I #W'
+setw -g aggressive-resize on
+set -g  display-time 2000
+set -g  display-panes-time 2000
+setw -g mode-keys vi         # コピーモードは vi キー
+set -g  status-keys emacs    # コマンドプロンプトの行編集は emacs キー
+
+
+# =============================================================================
+# プレフィックスキー
+# =============================================================================
+# 既定の C-b を「あえて維持」している。理由:
+#   - Claude Code の C-b（bash のバックグラウンド化）は tmux 下では
+#     「2回押し」で動くことが公式に明記されており、使用頻度も低い
+#   - C-a はプロンプトの行頭移動で高頻度に使うため prefix にすると損が大きい
+#   - C-Space は macOS の「前の入力ソースを選択」(日本語入力切替) と衝突
+#   - C-x は opencode のリーダーキー、C-t は Claude Code のタスク一覧と衝突
+#
+# 変更したい場合は以下3行をコメント解除（C-q は TUI でほぼ未使用）
+# set -g prefix C-q
+# unbind C-b
+# bind C-q send-prefix
+
+
+# =============================================================================
+# キーバインド
+# =============================================================================
+# #{config_files} は実際に読まれた設定ファイル（= ~/.config/tmux/tmux.conf）を返す。
+# source-file した先はここに含まれないので、パス直書きなしでリロードできる
+bind r source-file -F '#{config_files}' \; display-message "reloaded: #{config_files}"
+
+# 分割: カレントディレクトリを引き継ぐ（`-` は既定の delete-buffer を上書き）
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind % split-window -h -c "#{pane_current_path}"
+bind '"' split-window -v -c "#{pane_current_path}"
+bind c new-window      -c "#{pane_current_path}"
+
+# ペイン移動（`l` の既定 last-window は C-l に退避）
+bind -r h select-pane -L
+bind -r j select-pane -D
+bind -r k select-pane -U
+bind -r l select-pane -R
+bind C-l last-window
+
+# ペインリサイズ
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# その他
+bind S choose-tree -Zs         # セッション一覧
+bind BSpace last-window
+bind -n M-Left  previous-window
+bind -n M-Right next-window
+
+
+# =============================================================================
+# コピーモード / クリップボード
+# =============================================================================
+# OSC 52 方式。外部コマンド不要で mac / WSL2 / SSH 越しすべて同じ挙動になる。
+#   external = tmux から外側端末へ送るだけ。ペイン内のプロセスが勝手に
+#              システムクリップボードを書き換えるのを禁止する（安全側）。
+#              AI エージェントが任意テキストを出力する環境では on にしない方が無難
+set -s set-clipboard external
+set -as terminal-features ',alacritty*:clipboard'   # xterm* は tmux が自動付与
+
+bind -T copy-mode-vi v      send -X begin-selection
+bind -T copy-mode-vi C-v    send -X rectangle-toggle
+bind -T copy-mode-vi y      send -X copy-pipe-and-cancel
+bind -T copy-mode-vi Y      send -X copy-pipe-end-of-line-and-cancel
+bind -T copy-mode-vi Escape send -X cancel
+
+# --- OSC 52 が効かない端末向けの外部コマンド方式 ------------------------------
+# 環境依存なので、使うなら mac_tmux / wsl_tmux に分けて書く方が規約に沿う
+#   mac_tmux : set -s set-clipboard off
+#              set -s copy-command "pbcopy"
+#   wsl_tmux : set -s set-clipboard off
+#              set -s copy-command "win32yank.exe -i --crlf"
+#              （win32yank が無ければ clip.exe。ただし日本語が化けることがある）
+
+
+# =============================================================================
+# 見た目（プラグイン非依存 / ASCII のみ・フォント要件なし）
+# =============================================================================
+set -g status on
+set -g status-interval 5
+set -g status-position bottom
+set -g status-justify left
+set -g status-style 'bg=colour236,fg=colour250'
+set -g status-left-length 40
+set -g status-right-length 60
+set -g status-left  '#[bg=colour109,fg=colour235,bold] #S #[default] '
+set -g status-right '#{?client_prefix,#[bg=colour174#,fg=colour235] PREFIX #[default] ,}#[fg=colour245]#h #[fg=colour250]%m/%d %H:%M '
+
+setw -g window-status-format         ' #I:#W#F '
+setw -g window-status-current-format '#[bg=colour240,fg=colour231,bold] #I:#W#F #[default]'
+
+set -g pane-border-style        'fg=colour238'
+set -g pane-active-border-style 'fg=colour109'
+set -g message-style            'bg=colour109,fg=colour235'
+set -g mode-style               'bg=colour109,fg=colour235'
+
