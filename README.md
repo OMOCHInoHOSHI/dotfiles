@@ -18,6 +18,8 @@ source ~/.zshrc
 ```
 
 ## tmuxを更新したら
+設定は tmux の起動時に自動で読み込まれます。
+起動中に変更を反映する場合（tmux の中で実行）
 ```
 tmux source-file ~/.config/tmux/tmux.conf
 ```
