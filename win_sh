@@ -1,0 +1,59 @@
+# Windows ネイティブ（Git for Windows の Git Bash）用の設定
+# 前提: Windows Terminal から "C:\Program Files\Git\bin\bash.exe" -i -l で起動する
+#       （付属の mintty は TUI アプリとの相性が悪いので想定しない）
+
+# Bashの履歴設定・ウィンドウサイズ確認（wsl_sh と同じ）
+HISTCONTROL=ignoreboth
+shopt -s histappend
+HISTSIZE=1000
+HISTFILESIZE=2000
+shopt -s checkwinsize
+shopt -s autocd
+
+# ln -s で本物のシンボリックリンクを作る（Git Bash の既定は「コピー」になる）
+# 要: Windows の開発者モード。作れない時はコピーせずエラーにする（nativestrict）
+case "$MSYS" in
+  *winsymlinks:*) ;;
+  *) export MSYS="${MSYS:+$MSYS }winsymlinks:nativestrict" ;;
+esac
+
+# opencode は $SHELL を見て実行シェルを選ぶ（未設定だと PowerShell になる）
+# Git Bash から起動した opencode が Git Bash を使うよう明示的に export する
+export SHELL
+
+# Windows Terminal では winpty 経由のエイリアスは不要なので外す
+# （Git for Windows の /etc/profile.d/aliases.sh が TERM=xterm* で自動設定する）
+if [ -n "$WT_SESSION" ]; then
+  for _cmd in node ipython php php5 psql python2.7 winget; do
+    case "$(alias "$_cmd" 2>/dev/null)" in
+      *winpty*) unalias "$_cmd" ;;
+    esac
+  done
+  unset _cmd
+fi
+
+# Gitブランチ名取得関数（Windows はプロセス起動が遅いので git 1回で済ませる）
+parse_git_branch() {
+  local b
+  b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) && printf ' (%s)' "$b"
+}
+
+# プロンプト設定（wsl_sh と同じ見た目 + タブタイトルにカレントディレクトリ）
+PS1='\[\e]0;\w\a\]\[\033[01;34m\]\w\[\033[36m\]$(parse_git_branch)\[\033[00m\] \$ '
+
+# Windows Terminal にカレントディレクトリを通知（OSC 9;9、wsl_sh の wslpath 版に相当）
+# → 「タブの複製」(Ctrl+Shift+D) などで同じディレクトリが開く
+# 書式は Microsoft 公式ドキュメント（MINGW / Git Bash 向け）に準拠
+case "$PROMPT_COMMAND" in
+  *'9;9;'*) ;;
+  *) PROMPT_COMMAND=${PROMPT_COMMAND:+"$PROMPT_COMMAND; "}'printf "\e]9;9;%s\e\\" "`cygpath -w "$PWD" -C ANSI`"' ;;
+esac
+
+# dircolorsを利用したカラー表示（Git Bash にも /usr/bin/dircolors がある）
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi

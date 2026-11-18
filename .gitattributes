@@ -1,0 +1,3 @@
+# Windows (core.autocrlf=true) で clone しても改行を LF に固定する
+# CRLF のまま bash が読むと「$'\r': command not found」で壊れるため
+* text=auto eol=lf
